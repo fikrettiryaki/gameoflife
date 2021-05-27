@@ -1,8 +1,8 @@
 package gameoflife.display;
 
-import gameoflife.strategy.ClassicStrategy;
+import gameoflife.strategy.Conways;
 import gameoflife.strategy.OptimisticStrategy;
-import gameoflife.strategy.PessimisticStrategy;
+import gameoflife.strategy.HungryBacteria;
 import gameoflife.strategy.VeryOptimisticStrategy;
 
 import javax.swing.*;
@@ -13,7 +13,7 @@ public class OptionsMenu extends JMenu implements ActionListener {
     private JMenuItem strategyVeryOptimistic;
     private JMenuItem strategyClassic;
     private JMenuItem strategyOptimistic;
-    private JMenuItem strategyPessimistic;
+    private JMenuItem hungryBacteria;
     private final JMenuItem clearGrid;
     private JMenuItem transition;
     Grid grid;
@@ -21,7 +21,7 @@ public class OptionsMenu extends JMenu implements ActionListener {
     public OptionsMenu(Grid grid) {
         super("Options");
         this.grid = grid;
-        strategyClassic = new JMenuItem("Classic");
+        strategyClassic = new JMenuItem("Conways");
         strategyClassic.addActionListener(this);
 
         strategyOptimistic = new JMenuItem("Optimist");
@@ -30,12 +30,11 @@ public class OptionsMenu extends JMenu implements ActionListener {
         strategyVeryOptimistic = new JMenuItem("Very Optimist");
         strategyVeryOptimistic.addActionListener(this);
 
-        strategyPessimistic = new JMenuItem("Pessimist");
-        strategyPessimistic.addActionListener(this);
+        hungryBacteria = new JMenuItem("Hungry Bacteria");
+        hungryBacteria.addActionListener(this);
 
         clearGrid = new JMenuItem("Clear");
         clearGrid.addActionListener(this);
-
 
         transition = new JMenuItem("Transition");
         transition.addActionListener(this);
@@ -44,7 +43,7 @@ public class OptionsMenu extends JMenu implements ActionListener {
         add(clearGrid);
         add(strategyOptimistic);
         add(strategyVeryOptimistic);
-        add(strategyPessimistic);
+        add(hungryBacteria);
         add(strategyClassic);
     }
 
@@ -59,11 +58,11 @@ public class OptionsMenu extends JMenu implements ActionListener {
         }
 
         if (e.getSource() == strategyClassic) {
-            grid.setStrategy(new ClassicStrategy());
+            grid.setStrategy(new Conways());
         }
 
-        if (e.getSource() == strategyPessimistic) {
-            grid.setStrategy(new PessimisticStrategy());
+        if (e.getSource() == hungryBacteria) {
+            grid.setStrategy(new HungryBacteria());
         }
 
         if (e.getSource() == clearGrid) {

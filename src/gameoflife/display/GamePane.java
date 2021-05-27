@@ -1,7 +1,7 @@
 package gameoflife.display;
 
 import gameoflife.creature.Thematrix;
-import gameoflife.strategy.ClassicStrategy;
+import gameoflife.strategy.Conways;
 import gameoflife.strategy.Strategy;
 
 import javax.swing.*;
@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.time.Instant;
 
 public  class GamePane extends JPanel {
     private boolean painting;
@@ -19,10 +20,10 @@ public  class GamePane extends JPanel {
 
     private  Color selectedColor = Color.PINK;
     private  int speed = 1;
-    private  int stepCount = 0;
-    private  int stepLength = 100;
-    private  boolean paused;
+    private  boolean paused = true;
     private boolean transition = true;
+
+    Instant lastTimeIterate = Instant.now();
 
     private final Thematrix thematrix;
 
@@ -30,15 +31,13 @@ public  class GamePane extends JPanel {
         this.scale = scale;
         this.size = size;
 
-        thematrix = new Thematrix(new ClassicStrategy(), size);
+        thematrix = new Thematrix(new Conways(), size);
         setBackground(Color.BLACK);
         addMouseListener(new MouseAdapter() {
             @Override
-
             public void mousePressed(MouseEvent e) {
                 painting = true;
-                stepCount=stepLength;
-                tryAdjustValue(e.getPoint(), e.getButton() == MouseEvent.BUTTON1);
+                tryAdjustValue(e.getPoint(), SwingUtilities.isLeftMouseButton(e));
             }
 
             @Override
@@ -51,14 +50,14 @@ public  class GamePane extends JPanel {
 
         addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
-                tryAdjustValue(e.getPoint(), e.getButton() == MouseEvent.BUTTON1);
+                tryAdjustValue(e.getPoint(), SwingUtilities.isLeftMouseButton(e));
             }
 
             public void mouseMoved(MouseEvent e) {
-                tryAdjustValue(e.getPoint(), e.getButton() == MouseEvent.BUTTON1);
+                tryAdjustValue(e.getPoint(), SwingUtilities.isLeftMouseButton(e));
             }
         });
-        final Timer timer = new Timer(10, e -> checkDraw());
+        final Timer timer = new Timer(50, e -> checkDraw());
         timer.start();
     }
 
@@ -66,21 +65,24 @@ public  class GamePane extends JPanel {
         if (painting || paused) {
             return;
         }
-        stepCount += speed;
+        paused = true;
+        Instant now = Instant.now();
+        long diff = now.toEpochMilli() - lastTimeIterate.toEpochMilli();
+        int inverseSpeed = 1000/speed;
+        int iterateCount = (int)(diff/inverseSpeed);
 
-        if (stepCount >= stepLength) {
-            thematrix.iterate();
-            stepCount = 0;
-            repaint();
-        } else {
-            if(transition){
-                repaint();
+        if(iterateCount>0){
+            while(iterateCount>0){
+                iterateCount--;
+                thematrix.iterate();
             }
+            lastTimeIterate = now;
         }
 
+        repaint();
 
+        paused=false;
     }
-
 
     private boolean isInRange(int val) {
         return val >= 0 && val < size;
@@ -90,10 +92,12 @@ public  class GamePane extends JPanel {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g.create();
 
+        Instant now = Instant.now();
+        long diff = now.toEpochMilli() - lastTimeIterate.toEpochMilli();
 
-        Color newColor = DisplayUtil.getScaledColor(true, false, selectedColor, stepCount, stepLength);
-        Color oldColor = DisplayUtil.getScaledColor(false, true, selectedColor, stepCount, stepLength);
-        Color sameColor = DisplayUtil.getScaledColor(true, true, selectedColor, stepCount, stepLength);
+        Color newColor = DisplayUtil.getScaledColor(true, false, selectedColor, speed, diff);
+        Color oldColor = DisplayUtil.getScaledColor(false, true, selectedColor, speed, diff);
+        Color sameColor = DisplayUtil.getScaledColor(true, true, selectedColor, speed, diff);
 
         for (int x = 0; x < size; ++x) {
             for (int y = 0; y < size; ++y) {
@@ -119,7 +123,8 @@ public  class GamePane extends JPanel {
         int newY = pt.y / scale;
 
         if (painting && isInRange(newX) && isInRange(newY) && (newX != lastX || newY != lastY)) {
-            thematrix.getMyworld()[newX][newY] = selected;
+            thematrix.getCells()[newX][newY].setAlive(selected);
+            thematrix.getMyworld()[newX][newY]=selected;
             lastX = newX;
             lastY = newY;
             repaint();
@@ -131,7 +136,11 @@ public  class GamePane extends JPanel {
     }
 
     public void setPaused(boolean paused) {
+        if(!paused){
+            lastTimeIterate = Instant.now();
+        }
         this.paused = paused;
+
     }
 
     public void setTransition() {

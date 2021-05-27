@@ -4,53 +4,56 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ColorMenu extends JMenu implements ActionListener {
-    private final Grid grid;
-    private final JMenuItem colorRed;
-    private final JMenuItem colorPink;
-    private final JMenuItem colorBlue;
-    private final JMenuItem colorYellow;
-    private final JMenuItem colorOrange;
+    Grid grid;
+
+    private List<WrappedMenuItem> items = List.of(new WrappedMenuItem(Color.BLUE, "Blue", this),
+            new WrappedMenuItem(Color.GREEN, "Green", this),
+            new WrappedMenuItem(Color.YELLOW, "Yellow", this),
+            new WrappedMenuItem(Color.PINK, "Pink", this),
+            new WrappedMenuItem(Color.GRAY, "Gray", this),
+            new WrappedMenuItem(Color.RED, "Red", this),
+            new WrappedMenuItem(Color.ORANGE, "Orange", this),
+            new WrappedMenuItem(Color.MAGENTA, "Magenta", this)
+
+
+            );
 
     public ColorMenu(Grid grid) {
+
         super("Color");
         this.grid = grid;
 
-        colorOrange = new JMenuItem("orange");
-        colorOrange.addActionListener(this);
-        colorBlue = new JMenuItem("blue");
-        colorBlue.addActionListener(this);
-        colorPink = new JMenuItem("pink");
-        colorPink.addActionListener(this);
-        colorRed = new JMenuItem("red");
-        colorRed.addActionListener(this);
-        colorYellow = new JMenuItem("yellow");
-        colorYellow.addActionListener(this);
-        add(colorOrange);
-        add(colorBlue);
-        add(colorPink);
-        add(colorRed);
-        add(colorYellow);
+        for(WrappedMenuItem item : items){
+            this.add(item);
+        }
+        items.get(0).setEnabled(false);
+        grid.setColor(items.get(0).value);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        for (WrappedMenuItem item : items) {
+            if (e.getSource() == item) {
+                grid.setColor(item.value);
+                item.setEnabled(false);
 
-        if (e.getSource() == colorOrange) {
-            grid.setColor(Color.ORANGE);
+            } else {
+                item.setEnabled(true);
+            }
         }
-        if (e.getSource() == colorBlue) {
-            grid.setColor(Color.BLUE);
-        }
-        if (e.getSource() == colorPink) {
-            grid.setColor(Color.PINK);
-        }
-        if (e.getSource() == colorRed) {
-            grid.setColor(Color.RED);
-        }
-        if (e.getSource() == colorYellow) {
-            grid.setColor(Color.YELLOW);
+    }
+
+    private static class WrappedMenuItem extends JMenuItem {
+        Color value;
+        public WrappedMenuItem(Color value, String title, ActionListener actionListener) {
+            super(title);
+            this.value = value;
+            this.addActionListener(actionListener);
         }
     }
 }

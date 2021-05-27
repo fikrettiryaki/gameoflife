@@ -3,11 +3,17 @@ package gameoflife.display;
 import java.awt.*;
 
 public class DisplayUtil {
-    public static Color getScaledColor(boolean now, boolean old, Color selectedColor, int stepCount, int stepLength){
+    public static Color getScaledColor(boolean now, boolean old, Color selectedColor, int speed, long timeTillRefresh){
+
+        if(speed>5||speed ==0){
+            return selectedColor;
+        }
         if(old && now){
             return selectedColor;
         }
-        float multiplier = (float) stepCount /(float)(stepLength/2);
+        long timeInterval = 1000/speed;
+
+        float multiplier = (float) timeTillRefresh /(float)(timeInterval/2);
 
         if(old){
             multiplier = 1f-multiplier;

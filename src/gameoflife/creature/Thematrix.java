@@ -8,6 +8,7 @@ public class Thematrix {
 
     boolean[][] myworld;
     boolean[][] oldworld;
+    Cell[][] cells;
     Strategy strategy;
 
     public Thematrix(Strategy strategy, int size) {
@@ -15,84 +16,30 @@ public class Thematrix {
         this.size = size;
         this.myworld = new boolean[size][size];
         this.oldworld = new boolean[size][size];
+        cells = new Cell[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cells[i][j] = new Cell();
+            }
+        }
     }
 
     public void iterate() {
         oldworld = myworld;
         boolean[][] newworld = new boolean[size][size];
         for(int i = 0; i < size; i++) {
-            for (int j = 0; j<size; j++) {
-                int neighbours = countAliveInfinite(i,j);
-                if(myworld[i][j] && strategy.shouldStayAlive(neighbours) ){
-                    newworld[i][j] = true;
-                }
-                if(!myworld[i][j] &&  strategy.shouldBecomeAlive(neighbours)){
-                    newworld[i][j] = true;
-                }
+            for (int j = 0; j < size; j++) {
+                strategy.iterateCell(cells, i, j);
+                newworld[i][j] = cells[i][j].willBeAlive;
+            }
+        }
+        for(int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cells[i][j].setAlive(cells[i][j].willBeAlive);
             }
         }
         myworld = newworld;
     }
-
-
-    public int countAlive(int i, int j){
-        int neighbour=0;
-        if(i>0 && myworld[i-1][j]){
-            neighbour++;
-        }
-        if(i>0 && j>0 && myworld[i-1][j-1]){
-            neighbour++;
-        }
-        if(i>0 && j<size-1 && myworld[i-1][j+1]){
-            neighbour++;
-        }
-        if(j>0 && myworld[i][j-1]){
-            neighbour++;
-        }
-        if(j<size-1 && myworld[i][j+1]){
-            neighbour++;
-        }
-        if(i<size-1 && myworld[i+1][j]){
-            neighbour++;
-        }
-        if(i<size-1 && j>0 && myworld[i+1][j-1]){
-            neighbour++;
-        }
-        if(i<size-1 && j<size-1 && myworld[i+1][j+1]){
-            neighbour++;
-        }
-        return neighbour;
-    }
-
-    public int countAliveInfinite(int i, int j){
-        int neighbour=0;
-        if(myworld[(i-1 + size)%size][j]){
-            neighbour++;
-        }
-        if( myworld[(i-1+ size)%size][(j-1+ size)%size]){
-            neighbour++;
-        }
-        if(myworld[(i-1+ size)%size][(j+1)%size]){
-            neighbour++;
-        }
-        if(myworld[i][(j-1+ size)%size]){
-            neighbour++;
-        }
-        if(myworld[i][(j+1)%size]){
-            neighbour++;
-        }
-        if(myworld[(i+1)%size][j]){
-            neighbour++;
-        }
-        if(myworld[(i+1)%size][(j-1+ size)%size]){
-            neighbour++;
-        }
-        if(myworld[(i+1)%size][(j+1)%size]){
-            neighbour++;
-        }
-        return neighbour;
-    }
-
 
     public void clear() {
         this.myworld = new boolean[size][size];
@@ -103,19 +50,17 @@ public class Thematrix {
         return myworld;
     }
 
-    public void setMyworld(boolean[][] myworld) {
-        this.myworld = myworld;
-    }
 
     public boolean[][] getOldworld() {
         return oldworld;
     }
 
-    public void setOldworld(boolean[][] oldworld) {
-        this.oldworld = oldworld;
-    }
 
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
+    }
+
+    public Cell[][] getCells() {
+        return cells;
     }
 }

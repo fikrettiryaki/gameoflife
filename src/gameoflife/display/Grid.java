@@ -18,7 +18,8 @@ private GamePane gamePane;
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setBackground(Color.black);
-
+        gamePane = new GamePane(SCALE, SIZE);
+        add(gamePane);
         mb = new JMenuBar();
 
         mb.add(new SpeedMenu(this));
@@ -26,18 +27,17 @@ private GamePane gamePane;
         mb.add(new OptionsMenu(this));
 
         setJMenuBar(mb);
-        gamePane = new GamePane(SCALE, SIZE);
-        add(gamePane);
+
     }
 
 
 
-    public void setPaused(boolean b) {
-        gamePane.setPaused(b);
-    }
+
 
     public void setSpeed(int speed) {
+
         gamePane.setSpeed(speed);
+        gamePane.setPaused(speed==0);
     }
 
     public void setColor(Color color) {
