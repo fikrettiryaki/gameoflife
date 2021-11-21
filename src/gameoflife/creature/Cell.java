@@ -1,17 +1,17 @@
 package gameoflife.creature;
 
 public class Cell {
-    boolean isAlive;
+    boolean wasAlive;
     int toxicity;
     int age;
     boolean willBeAlive;
 
-    public boolean isAlive() {
-        return isAlive;
+    public boolean isWasAlive() {
+        return wasAlive;
     }
 
-    public void setAlive(boolean alive) {
-        isAlive = alive;
+    public void setWasAlive(boolean wasAlive) {
+        this.wasAlive = wasAlive;
     }
 
     public int getToxicity() {
@@ -35,9 +35,6 @@ public class Cell {
     }
 
     public void setWillBeAlive(boolean willBeAlive) {
-        if(willBeAlive == false && isAlive){
-            toxicity++;
-        }
         this.willBeAlive = willBeAlive;
     }
 }

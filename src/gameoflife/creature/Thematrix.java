@@ -4,63 +4,64 @@ import gameoflife.strategy.Strategy;
 
 public class Thematrix {
 
-    int size;
+    int width;
+    int height;
 
-    boolean[][] myworld;
-    boolean[][] oldworld;
-    Cell[][] cells;
+    private Cell[][] cells;
     Strategy strategy;
 
-    public Thematrix(Strategy strategy, int size) {
+    public Thematrix(Strategy strategy, int width, int height) {
         this.strategy = strategy;
-        this.size = size;
-        this.myworld = new boolean[size][size];
-        this.oldworld = new boolean[size][size];
-        cells = new Cell[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        this.width = width;
+        this.height = height;
+        cells = new Cell[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 cells[i][j] = new Cell();
             }
         }
     }
 
     public void iterate() {
-        oldworld = myworld;
-        boolean[][] newworld = new boolean[size][size];
-        for(int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 strategy.iterateCell(cells, i, j);
-                newworld[i][j] = cells[i][j].willBeAlive;
             }
         }
-        for(int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                cells[i][j].setAlive(cells[i][j].willBeAlive);
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                cells[i][j].setWasAlive(cells[i][j].willBeAlive);
             }
         }
-        myworld = newworld;
     }
 
     public void clear() {
-        this.myworld = new boolean[size][size];
-        this.oldworld = new boolean[size][size];
+        Cell [][] newCells = new Cell[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                newCells[i][j] = new Cell();
+            }
+        }
+        cells = newCells;
+
     }
-
-    public boolean[][] getMyworld() {
-        return myworld;
-    }
-
-
-    public boolean[][] getOldworld() {
-        return oldworld;
-    }
-
 
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
     }
 
-    public Cell[][] getCells() {
-        return cells;
+    public boolean willBeDead(int x, int y) {
+        return !cells[x][y].isWillBeAlive();
+    }
+
+    public boolean wasDead(int x, int y) {
+        return !cells[x][y].isWasAlive();
+    }
+
+    public void setWasAlive(int x, int y, boolean selected) {
+        cells[x][y].setWasAlive(selected);
+    }
+    public void setWillBeAlive(int x, int y, boolean selected) {
+        cells[x][y].setWillBeAlive(selected);
     }
 }

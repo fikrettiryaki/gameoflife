@@ -16,7 +16,9 @@ public  class GamePane extends JPanel {
     private int lastX = -1;
     private int lastY = -1;
 
-    private int scale, size;
+    private int width;
+    private int height;
+    private int scale;
 
     private  Color selectedColor = Color.PINK;
     private  int speed = 1;
@@ -27,11 +29,12 @@ public  class GamePane extends JPanel {
 
     private final Thematrix thematrix;
 
-    public GamePane(int scale, int size) {
+    public GamePane(int scale, int width, int height) {
+        this.width = width;
+        this.height = height;
         this.scale = scale;
-        this.size = size;
 
-        thematrix = new Thematrix(new Conways(), size);
+        thematrix = new Thematrix(new Conways(), width, height);
         setBackground(Color.BLACK);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -68,26 +71,25 @@ public  class GamePane extends JPanel {
         paused = true;
         Instant now = Instant.now();
         long diff = now.toEpochMilli() - lastTimeIterate.toEpochMilli();
-        int inverseSpeed = 1000/speed;
-        int iterateCount = (int)(diff/inverseSpeed);
+        long iterationLength = 1000 / speed;
 
-        if(iterateCount>0){
-            while(iterateCount>0){
-                iterateCount--;
-                thematrix.iterate();
-            }
+        if (diff > iterationLength) {
+            thematrix.iterate();
+
             lastTimeIterate = now;
         }
 
         repaint();
 
-        paused=false;
+        paused = false;
     }
 
-    private boolean isInRange(int val) {
-        return val >= 0 && val < size;
+    private boolean isInRangeWidth(int val) {
+        return val >= 0 && val < width;
     }
-
+    private boolean isInRangeHeight(int val) {
+        return val >= 0 && val < height;
+    }
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g.create();
@@ -95,36 +97,39 @@ public  class GamePane extends JPanel {
         Instant now = Instant.now();
         long diff = now.toEpochMilli() - lastTimeIterate.toEpochMilli();
 
-        Color newColor = DisplayUtil.getScaledColor(true, false, selectedColor, speed, diff);
-        Color oldColor = DisplayUtil.getScaledColor(false, true, selectedColor, speed, diff);
-        Color sameColor = DisplayUtil.getScaledColor(true, true, selectedColor, speed, diff);
+        Color growingColor = DisplayUtil.getScaledColor(true, false, selectedColor, speed, diff, transition, paused);
+        Color dyingColor = DisplayUtil.getScaledColor(false, true, selectedColor, speed, diff, transition, paused);
+        Color sameColor = DisplayUtil.getScaledColor(true, true, selectedColor, speed, diff, transition, paused);
 
-        for (int x = 0; x < size; ++x) {
-            for (int y = 0; y < size; ++y) {
-                if (thematrix.getMyworld()[x][y] || (!paused && transition && thematrix.getOldworld()[x][y])) {
-                    Color c = sameColor;
-                    if (transition && !thematrix.getMyworld()[x][y]) {
-                        c = oldColor;
-                    }
-                    if (transition && !thematrix.getOldworld()[x][y]) {
-                        c = newColor;
-                    }
-                    g2d.setColor(c);
-                    g2d.fillRect(x * scale, y * scale, scale, scale);
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                if (thematrix.wasDead(x, y) && thematrix.willBeDead(x, y)) {
+                    continue;
                 }
+                Color c = sameColor;
+
+                if (thematrix.willBeDead(x, y)) {
+                    c = dyingColor;
+                }
+                if (thematrix.wasDead(x, y)) {
+                    c = growingColor;
+                }
+
+
+                g2d.setColor(c);
+                g2d.fillRect(x * scale, y * scale, scale, scale);
             }
         }
         g2d.dispose();
     }
 
-
     private void tryAdjustValue(Point pt, boolean selected) {
         int newX = pt.x / scale;
         int newY = pt.y / scale;
 
-        if (painting && isInRange(newX) && isInRange(newY) && (newX != lastX || newY != lastY)) {
-            thematrix.getCells()[newX][newY].setAlive(selected);
-            thematrix.getMyworld()[newX][newY]=selected;
+        if (painting && isInRangeWidth(newX) && isInRangeHeight(newY) && (newX != lastX || newY != lastY)) {
+            thematrix.setWasAlive(newX, newY, selected);
+            thematrix.setWillBeAlive(newX, newY, selected);
             lastX = newX;
             lastY = newY;
             repaint();

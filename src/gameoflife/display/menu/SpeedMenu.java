@@ -1,4 +1,6 @@
-package gameoflife.display;
+package gameoflife.display.menu;
+
+import gameoflife.display.Grid;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

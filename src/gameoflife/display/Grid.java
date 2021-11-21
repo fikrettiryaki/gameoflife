@@ -1,38 +1,38 @@
 package gameoflife.display;
 
-import gameoflife.strategy.Strategy;
+import gameoflife.display.menu.GameMenuBar;
+import gameoflife.strategy.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Grid extends JFrame {
-    private static final int SCALE = 10;
-    private static final int SIZE = 100;
-    private JMenuBar mb;
-
-private GamePane gamePane;
+    private GameMenuBar mb;
+    private GamePane gamePane;
+    private List<Strategy> strategies = Arrays.asList(new Conways(), new HungryBacteria(), new InterestingStrategy(), new OptimisticStrategy(), new VeryOptimisticStrategy());
 
 
-    public Grid() throws HeadlessException {
-        setPreferredSize(new Dimension(SIZE * SCALE, SIZE * SCALE));
-        setResizable(false);
+    public Grid(int scale, int width, int height) throws HeadlessException {
+        setPreferredSize(new Dimension(width * scale, height * scale));
+        setResizable(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setBackground(Color.black);
-        gamePane = new GamePane(SCALE, SIZE);
+        gamePane = new GamePane(scale, width, height);
         add(gamePane);
-        mb = new JMenuBar();
-
-        mb.add(new SpeedMenu(this));
-        mb.add(new ColorMenu(this));
-        mb.add(new OptionsMenu(this));
-
+        mb = new GameMenuBar(this);
         setJMenuBar(mb);
 
     }
 
 
-
-
+    public void setSize(int scale, int width, int height) {
+        this.remove(gamePane);
+        gamePane = new GamePane(scale, width, height);
+        this.add(gamePane);
+        this.setSize(new Dimension(width * scale, height * scale));
+    }
 
     public void setSpeed(int speed) {
 
@@ -54,5 +54,9 @@ private GamePane gamePane;
 
     public void transition() {
         gamePane.setTransition();
+    }
+
+    public List<Strategy> getStrategies() {
+        return strategies;
     }
 }

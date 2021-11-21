@@ -10,8 +10,13 @@ public class HungryBacteria implements Strategy {
 
 
     @Override
+    public String getMenuTitle() {
+        return "Toxic bacteria";
+    }
+
+    @Override
     public void iterateCell(Cell[][] cells, int i, int j) {
-        if (!cells[i][j].isAlive()) {
+        if (!cells[i][j].isWasAlive()) {
             return;
         }
 

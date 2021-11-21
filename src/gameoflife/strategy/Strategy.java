@@ -6,62 +6,75 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface Strategy {
+
+    String getMenuTitle();
+
     void iterateCell(Cell[][] cells, int i, int j);
 
     default int countAliveNeighbours(Cell[][] cells, int i, int j){
         int neighbour=0;
-        if(i>0 && cells[i-1][j].isAlive()){
+
+        if(cells[getX(cells,i-1)][j].isWasAlive()){
             neighbour++;
         }
-        if(i>0 && j>0 && cells[i-1][j-1].isAlive()){
+        if(cells[getX(cells, i-1)][getY(cells, j-1)].isWasAlive()){
             neighbour++;
         }
-        if(i>0 && j<cells[i].length-1 && cells[i-1][j+1].isAlive()){
+        if(cells[getX(cells, i-1)][getY(cells,j+1)].isWasAlive()){
             neighbour++;
         }
-        if(i<cells.length-1 && cells[i+1][j].isAlive()){
+        if(cells[getX(cells, i+1)][j].isWasAlive()){
             neighbour++;
         }
-        if(i<cells.length-1 && j>0 && cells[i+1][j-1].isAlive()){
+        if(cells[getX(cells, i+1)][getY(cells,j-1)].isWasAlive()){
             neighbour++;
         }
-        if(i<cells.length-1 && j<cells[i].length-1 && cells[i+1][j+1].isAlive()){
+        if(cells[getX(cells, i+1)][getY(cells,j+1)].isWasAlive()){
             neighbour++;
         }
-        if(j>0 && cells[i][j-1].isAlive()){
+        if(cells[i][getY(cells, j-1)].isWasAlive()){
             neighbour++;
         }
-        if(j<cells[i].length-1 && cells[i][j+1].isAlive()){
+        if(cells[i][getY(cells, j+1)].isWasAlive()){
             neighbour++;
         }
 
         return neighbour;
     }
 
+    default int getY(Cell[][] cells, int i){
+        return (cells[0].length + i )%cells[0].length;
+    }
+
+    default int getX(Cell[][] cells, int i) {
+       return (cells.length + i )%cells.length;
+
+    }
+
     default List<Cell> getDeadCells(Cell[][] cells, int i, int j){
         List<Cell> deadCells = new ArrayList<>();
-        if(i>0 && !cells[i-1][j].isAlive()){
+        if(i>0 && !cells[i-1][j].isWasAlive()){
             deadCells.add(cells[i-1][j]);
         }
-        if(i>0 && j>0 && !cells[i-1][j-1].isAlive()){
+        if(i>0 && j>0 && !cells[i-1][j-1].isWasAlive()){
             deadCells.add(cells[i-1][j-1]);
         }
-        if(i>0 && j<cells[i].length-1 && !cells[i-1][j+1].isAlive()){
+        if(i>0 && j<cells[i].length-1 && !cells[i-1][j+1].isWasAlive()){
             deadCells.add(cells[i-1][j+1]);
         }
-        if(i<cells.length-1 && !cells[i+1][j].isAlive()){
+        if(i<cells.length-1 && !cells[i+1][j].isWasAlive()){
             deadCells.add(cells[i+1][j]);
         }
-        if(i<cells.length-1 && j>0 && !cells[i+1][j-1].isAlive()){
+        if(i<cells.length-1 && j>0 && !cells[i+1][j-1].isWasAlive()){
             deadCells.add(cells[i+1][j-1]);
         }
-        if(i<cells.length-1 && j<cells[i].length-1 && !cells[i+1][j+1].isAlive()){
+        if(i<cells.length-1 && j<cells[i].length-1 && !cells[i+1][j+1].isWasAlive()){
             deadCells.add(cells[i+1][j+1]);
         }
-        if(j>0 && !cells[i][j-1].isAlive()){
+        if(j>0 && !cells[i][j-1].isWasAlive()){
             deadCells.add(cells[i][j-1]);
         }
-        if(j<cells[i].length-1 && !cells[i][j+1].isAlive()){
+        if(j<cells[i].length-1 && !cells[i][j+1].isWasAlive()){
             deadCells.add(cells[i][j+1]);
         }
 
