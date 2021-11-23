@@ -1,8 +1,10 @@
 package gameoflife.display;
 
+import gameoflife.creature.Cell;
 import gameoflife.creature.Thematrix;
-import gameoflife.strategy.Conways;
-import gameoflife.strategy.Strategy;
+import gameoflife.options.Preferences;
+import gameoflife.options.strategy.Conways;
+import gameoflife.options.strategy.Strategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,25 +18,16 @@ public  class GamePane extends JPanel {
     private int lastX = -1;
     private int lastY = -1;
 
-    private int width;
-    private int height;
-    private int scale;
-
-    private  Color selectedColor = Color.PINK;
-    private  int speed = 1;
-    private  boolean paused = true;
     private boolean transition = true;
+    private boolean drawing = false;
 
     Instant lastTimeIterate = Instant.now();
 
     private final Thematrix thematrix;
 
-    public GamePane(int scale, int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.scale = scale;
+    public GamePane() {
 
-        thematrix = new Thematrix(new Conways(), width, height);
+        thematrix = new Thematrix(Preferences.getPreferences().getWidth(), Preferences.getPreferences().getHeight());
         setBackground(Color.BLACK);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -64,14 +57,22 @@ public  class GamePane extends JPanel {
         timer.start();
     }
 
+    public Cell[][] getCells(){
+        return thematrix.getCells();
+    }
+
+    public void cloneWorld(Cell[][] oldWorld){
+        thematrix.setFromOld(oldWorld);
+    }
+
     private void checkDraw() {
-        if (painting || paused) {
+        if (painting || drawing || Preferences.getPreferences().getSpeed() == 0) {
             return;
         }
-        paused = true;
+        drawing = true;
         Instant now = Instant.now();
         long diff = now.toEpochMilli() - lastTimeIterate.toEpochMilli();
-        long iterationLength = 1000 / speed;
+        long iterationLength = 1000 / Preferences.getPreferences().getSpeed();
 
         if (diff > iterationLength) {
             thematrix.iterate();
@@ -80,29 +81,31 @@ public  class GamePane extends JPanel {
         }
 
         repaint();
+        drawing = false;
 
-        paused = false;
     }
 
     private boolean isInRangeWidth(int val) {
-        return val >= 0 && val < width;
+        return val >= 0 && val < Preferences.getPreferences().getWidth();
     }
     private boolean isInRangeHeight(int val) {
-        return val >= 0 && val < height;
+        return val >= 0 && val <  Preferences.getPreferences().getHeight();
     }
     public void paint(Graphics g) {
+        boolean paused = Preferences.getPreferences().getSpeed() == 0;
+
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g.create();
 
         Instant now = Instant.now();
         long diff = now.toEpochMilli() - lastTimeIterate.toEpochMilli();
 
-        Color growingColor = DisplayUtil.getScaledColor(true, false, selectedColor, speed, diff, transition, paused);
-        Color dyingColor = DisplayUtil.getScaledColor(false, true, selectedColor, speed, diff, transition, paused);
-        Color sameColor = DisplayUtil.getScaledColor(true, true, selectedColor, speed, diff, transition, paused);
+        Color growingColor = DisplayUtil.getScaledColor(true, false, Preferences.getPreferences().getColor(), Preferences.getPreferences().getSpeed(), diff, transition, paused);
+        Color dyingColor = DisplayUtil.getScaledColor(false, true, Preferences.getPreferences().getColor(), Preferences.getPreferences().getSpeed(), diff, transition, paused);
+        Color sameColor = DisplayUtil.getScaledColor(true, true, Preferences.getPreferences().getColor(), Preferences.getPreferences().getSpeed(), diff, transition, paused);
 
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < Preferences.getPreferences().getWidth(); ++x) {
+            for (int y = 0; y < Preferences.getPreferences().getHeight(); ++y) {
                 if (thematrix.wasDead(x, y) && thematrix.willBeDead(x, y)) {
                     continue;
                 }
@@ -117,15 +120,15 @@ public  class GamePane extends JPanel {
 
 
                 g2d.setColor(c);
-                g2d.fillRect(x * scale, y * scale, scale, scale);
+                g2d.fillRect(x * Preferences.getPreferences().getScale(), y * Preferences.getPreferences().getScale(), Preferences.getPreferences().getScale(), Preferences.getPreferences().getScale());
             }
         }
         g2d.dispose();
     }
 
     private void tryAdjustValue(Point pt, boolean selected) {
-        int newX = pt.x / scale;
-        int newY = pt.y / scale;
+        int newX = pt.x / Preferences.getPreferences().getScale();
+        int newY = pt.y / Preferences.getPreferences().getScale();
 
         if (painting && isInRangeWidth(newX) && isInRangeHeight(newY) && (newX != lastX || newY != lastY)) {
             thematrix.setWasAlive(newX, newY, selected);
@@ -136,29 +139,10 @@ public  class GamePane extends JPanel {
         }
     }
 
-    public void setColor(Color color) {
-        this.selectedColor = color;
-    }
-
-    public void setPaused(boolean paused) {
-        if(!paused){
-            lastTimeIterate = Instant.now();
-        }
-        this.paused = paused;
-
-    }
-
     public void setTransition() {
         transition = !transition;
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
-    public void setStrategy(Strategy strategy) {
-        this.thematrix.setStrategy(strategy);
-    }
 
     public void clear() {
         thematrix.clear();

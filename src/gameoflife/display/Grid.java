@@ -1,51 +1,45 @@
 package gameoflife.display;
 
+import gameoflife.creature.Cell;
 import gameoflife.display.menu.GameMenuBar;
-import gameoflife.strategy.*;
+import gameoflife.options.OptionManager;
+import gameoflife.options.Preferences;
+import gameoflife.options.color.ColorManager;
+import gameoflife.options.size.SizeManager;
+import gameoflife.options.other.OtherManager;
+import gameoflife.options.speed.SpeedManager;
+import gameoflife.options.strategy.StrategyManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 
 public class Grid extends JFrame {
     private GameMenuBar mb;
     private GamePane gamePane;
-    private List<Strategy> strategies = Arrays.asList(new Conways(), new HungryBacteria(), new InterestingStrategy(), new OptimisticStrategy(), new VeryOptimisticStrategy());
 
 
-    public Grid(int scale, int width, int height) throws HeadlessException {
-        setPreferredSize(new Dimension(width * scale, height * scale));
+    public Grid() throws HeadlessException {
+        setPreferredSize(new Dimension(Preferences.getPreferences().getWidth() * Preferences.getPreferences().getScale(), Preferences.getPreferences().getHeight() * Preferences.getPreferences().getScale()));
         setResizable(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setBackground(Color.black);
-        gamePane = new GamePane(scale, width, height);
+        getContentPane().setBackground(Color.darkGray);
+        gamePane = new GamePane();
         add(gamePane);
-        mb = new GameMenuBar(this);
+        java.util.List<OptionManager> managers = Arrays.asList(new SpeedManager(), new ColorManager(), new StrategyManager(), new SizeManager(), new OtherManager());
+        mb = new GameMenuBar(this, managers);
         setJMenuBar(mb);
 
     }
 
 
-    public void setSize(int scale, int width, int height) {
+    public void sizeChanged() {
         this.remove(gamePane);
-        gamePane = new GamePane(scale, width, height);
+        Cell[][] old = gamePane.getCells();
+        gamePane = new GamePane();
+        gamePane.cloneWorld(old);
         this.add(gamePane);
-        this.setSize(new Dimension(width * scale, height * scale));
-    }
-
-    public void setSpeed(int speed) {
-
-        gamePane.setSpeed(speed);
-        gamePane.setPaused(speed==0);
-    }
-
-    public void setColor(Color color) {
-        gamePane.setColor(color);
-    }
-
-    public void setStrategy(Strategy strategy) {
-        gamePane.setStrategy(strategy);
+        this.setSize(new Dimension(Preferences.getPreferences().getWidth() * Preferences.getPreferences().getScale(), Preferences.getPreferences().getHeight() * Preferences.getPreferences().getScale()));
     }
 
     public void clear() {
@@ -56,7 +50,4 @@ public class Grid extends JFrame {
         gamePane.setTransition();
     }
 
-    public List<Strategy> getStrategies() {
-        return strategies;
-    }
 }

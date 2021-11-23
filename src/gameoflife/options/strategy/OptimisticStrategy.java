@@ -1,11 +1,11 @@
-package gameoflife.strategy;
+package gameoflife.options.strategy;
 
 import gameoflife.creature.Cell;
 
 public class OptimisticStrategy implements Strategy {
 
     @Override
-    public String getMenuTitle() {
+    public String getMenuName() {
         return "Sticky bacteria";
     }
 
@@ -19,6 +19,7 @@ public class OptimisticStrategy implements Strategy {
         if(neighbourCount==3 && cells[i][j].isWasAlive()){
             return;
         }
-        cells[i][j].setWasAlive(false);
+        cells[i][j].setWillBeAlive(false);
     }
+
 }

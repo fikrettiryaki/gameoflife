@@ -1,17 +1,27 @@
 package gameoflife.creature;
 
-import gameoflife.strategy.Strategy;
+import gameoflife.options.Preferences;
 
 public class Thematrix {
 
     int width;
     int height;
 
-    private Cell[][] cells;
-    Strategy strategy;
+    public Cell[][] getCells() {
+        return cells;
+    }
 
-    public Thematrix(Strategy strategy, int width, int height) {
-        this.strategy = strategy;
+    public void setFromOld(Cell[][] oldCells) {
+        for(int i = 0; i<oldCells.length && i<cells.length; i++){
+            for(int j = 0; j<cells[0].length && j<oldCells[0].length; j++){
+                cells[i][j] = oldCells[i][j];
+            }
+        }
+    }
+
+    private Cell[][] cells;
+
+    public Thematrix(int width, int height) {
         this.width = width;
         this.height = height;
         cells = new Cell[width][height];
@@ -22,17 +32,21 @@ public class Thematrix {
         }
     }
 
+
+
     public void iterate() {
         for(int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                strategy.iterateCell(cells, i, j);
-            }
+        for (int j = 0; j < height; j++) {
+            cells[i][j].setWasAlive(cells[i][j].willBeAlive);
+            cells[i][j].willBeAlive = false;
         }
+    }
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                cells[i][j].setWasAlive(cells[i][j].willBeAlive);
+                Preferences.getPreferences().getStrategy().iterateCell(cells, i, j);
             }
         }
+
     }
 
     public void clear() {
@@ -44,10 +58,6 @@ public class Thematrix {
         }
         cells = newCells;
 
-    }
-
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
     }
 
     public boolean willBeDead(int x, int y) {

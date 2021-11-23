@@ -1,13 +1,12 @@
-package gameoflife.strategy;
+package gameoflife.options.strategy;
 
 import gameoflife.creature.Cell;
+import gameoflife.options.Option;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Strategy {
-
-    String getMenuTitle();
+public interface Strategy extends Option {
 
     void iterateCell(Cell[][] cells, int i, int j);
 

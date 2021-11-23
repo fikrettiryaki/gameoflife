@@ -1,4 +1,4 @@
-package gameoflife.strategy;
+package gameoflife.options.strategy;
 
 import gameoflife.creature.Cell;
 
@@ -10,7 +10,7 @@ public class HungryBacteria implements Strategy {
 
 
     @Override
-    public String getMenuTitle() {
+    public String getMenuName() {
         return "Toxic bacteria";
     }
 
