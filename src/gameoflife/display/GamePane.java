@@ -1,10 +1,7 @@
 package gameoflife.display;
 
-import gameoflife.creature.Cell;
 import gameoflife.creature.Thematrix;
 import gameoflife.options.Preferences;
-import gameoflife.options.strategy.Conways;
-import gameoflife.options.strategy.Strategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +24,7 @@ public  class GamePane extends JPanel {
 
     public GamePane() {
 
-        thematrix = new Thematrix(Preferences.getPreferences().getWidth(), Preferences.getPreferences().getHeight());
+        thematrix = new Thematrix();
         setBackground(Color.BLACK);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -55,14 +52,6 @@ public  class GamePane extends JPanel {
         });
         final Timer timer = new Timer(50, e -> checkDraw());
         timer.start();
-    }
-
-    public Cell[][] getCells(){
-        return thematrix.getCells();
-    }
-
-    public void cloneWorld(Cell[][] oldWorld){
-        thematrix.setFromOld(oldWorld);
     }
 
     private void checkDraw() {
@@ -146,6 +135,10 @@ public  class GamePane extends JPanel {
 
     public void clear() {
         thematrix.clear();
+    }
+
+    public void updateSize() {
+        thematrix.updateSize();
     }
 }
 

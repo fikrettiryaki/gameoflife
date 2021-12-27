@@ -1,12 +1,11 @@
 package gameoflife.display;
 
-import gameoflife.creature.Cell;
 import gameoflife.display.menu.GameMenuBar;
 import gameoflife.options.OptionManager;
 import gameoflife.options.Preferences;
 import gameoflife.options.color.ColorManager;
-import gameoflife.options.size.SizeManager;
 import gameoflife.options.other.OtherManager;
+import gameoflife.options.size.SizeManager;
 import gameoflife.options.speed.SpeedManager;
 import gameoflife.options.strategy.StrategyManager;
 
@@ -34,11 +33,7 @@ public class Grid extends JFrame {
 
 
     public void sizeChanged() {
-        this.remove(gamePane);
-        Cell[][] old = gamePane.getCells();
-        gamePane = new GamePane();
-        gamePane.cloneWorld(old);
-        this.add(gamePane);
+        gamePane.updateSize();
         this.setSize(new Dimension(Preferences.getPreferences().getWidth() * Preferences.getPreferences().getScale(), Preferences.getPreferences().getHeight() * Preferences.getPreferences().getScale()));
     }
 

@@ -4,45 +4,37 @@ import gameoflife.options.Preferences;
 
 public class Thematrix {
 
-    int width;
-    int height;
+    private Cell[][] cells;
+
+    public Thematrix() {
+        cells = newCells();
+    }
 
     public Cell[][] getCells() {
         return cells;
     }
 
-    public void setFromOld(Cell[][] oldCells) {
-        for(int i = 0; i<oldCells.length && i<cells.length; i++){
-            for(int j = 0; j<cells[0].length && j<oldCells[0].length; j++){
-                cells[i][j] = oldCells[i][j];
+    public void updateSize() {
+
+        Cell[][] newCells = newCells();
+
+        for(int i = 0; i<newCells.length && i<cells.length; i++){
+            for(int j = 0; j<cells[0].length && j<newCells[0].length; j++){
+                newCells[i][j] = cells[i][j];
             }
         }
+        cells = newCells;
     }
-
-    private Cell[][] cells;
-
-    public Thematrix(int width, int height) {
-        this.width = width;
-        this.height = height;
-        cells = new Cell[width][height];
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                cells[i][j] = new Cell();
-            }
-        }
-    }
-
-
 
     public void iterate() {
-        for(int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            cells[i][j].setWasAlive(cells[i][j].willBeAlive);
-            cells[i][j].willBeAlive = false;
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[0].length; j++) {
+                cells[i][j].setWasAlive(cells[i][j].willBeAlive);
+                cells[i][j].willBeAlive = false;
+            }
         }
-    }
-        for(int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[0].length; j++) {
                 Preferences.getPreferences().getStrategy().iterateCell(cells, i, j);
             }
         }
@@ -50,14 +42,17 @@ public class Thematrix {
     }
 
     public void clear() {
-        Cell [][] newCells = new Cell[width][height];
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        cells = newCells();
+    }
+
+    private Cell[][] newCells(){
+        Cell [][] newCells = new Cell[Preferences.getPreferences().getWidth()][Preferences.getPreferences().getHeight()];
+        for (int i = 0; i < newCells.length; i++) {
+            for (int j = 0; j < newCells[0].length; j++) {
                 newCells[i][j] = new Cell();
             }
         }
-        cells = newCells;
-
+        return newCells;
     }
 
     public boolean willBeDead(int x, int y) {
